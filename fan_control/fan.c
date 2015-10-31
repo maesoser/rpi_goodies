@@ -4,9 +4,14 @@
 #include <stdlib.h>
 #include <wiringPi.h>
 #include <stdint.h>
+#include <softPwm.h>
+#include <errno.h>
+#include <string.h>
 
 #define MIN_FAN_SPEED 350
 #define MAX_FAN_SPEED 1024
+
+#define FAN_PWM_PIN 7
 
 #define DEFAULT_MIN_TEMP 50
 #define DEFAULT_MAX_TEMP 70
@@ -15,6 +20,7 @@
 int get_cpu_temp();
 int map(long x, long in_min, long in_max, long out_min, long out_max);
 void print_help();
+
 
 
 // you need to add -lwiringPi to the compile arguments
@@ -50,18 +56,33 @@ int main(int argc, char *argv[]){
 		}
 	}
 
+	if(debug){
+		printf("DEBUG MODE:\n");
+		printf("\tMinimum temp: %d\n",minimum);
+		printf("\tMinimum temp: %d\n",maximum);
+		printf("\tRefresh time: %d\n",refresh_time);
+
+	}
+
 	if (wiringPiSetup () == -1) return -1;
 
-	pinMode (FAN_PWM_PIN, PWM_OUTPUT) ;
+	if(softPwmCreate (FAN_PWM_PIN, 0, 1024)!=0) {
+		printf("Error Initiating Software PWM on that pin\n %s\n", strerror(errno));
+		return -1;
+	}
+
+	//pinMode (FAN_PWM_PIN, PWM_OUTPUT) ;
 
 	while(1){
 
 		cpu_temp = get_cpu_temp();
-		fan_speed = map(cpu_temp,minimum,maximum,MIN_FAN_SPEED,MAX_FAN_SPEED)
+		fan_speed = map(cpu_temp,minimum,maximum,MIN_FAN_SPEED,MAX_FAN_SPEED);
 
-		if(debug) printf("TEMP:%d\tFAN:%d/MAX_FAN_SPEED\n",cpu_temp,fan_speed);
-		else pwmWrite (FAN_PWM_PIN, fan_speed) ;
-
+		if(debug) printf("TEMP:%d\tFAN:%d/%d\n",cpu_temp,fan_speed,MAX_FAN_SPEED);
+		else {
+			softPwmWrite (FAN_PWM_PIN, fan_speed) ;
+			//pwmWrite(FAN_PWM_PIN, fan_speed);
+		}
 		sleep(refresh_time);
 
 	}
@@ -88,7 +109,7 @@ int get_cpu_temp(){
 }
 
 void print_help(){
-	printf("Controls FAN PWM Output by monitoring CPU temperature sensor");
+	printf("Controls FAN PWM Output by monitoring CPU temperature sensor\n");
 	printf("\t-m : minimum temp value\n");
 	printf("\t-M : maximum temp value\n");
 	printf("\t-r : refresh interval in seconds\n");

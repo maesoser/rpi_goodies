@@ -2,7 +2,7 @@
 
 Basically, you can use any available input, but this example will use pin **24**
 There is a connector with 3 wires (blue/black/green) coming from the left of the Plusberry board (it's labeled "UART").
-Connect the BLUE wire to pin **24** (see image) -
+Connect the BLUE wire to pin **24**, according to this [**image**](https://github.com/maesoser/rpi_goodies/blob/master/tutorials/shutdown_img.png)
 
 When you press the power button (short press), the GPIO will go from high to low, signalling the RPi to shutdown.
 Now, of course, you need to write a script to actually shutdown the RPi when getting the signal.
