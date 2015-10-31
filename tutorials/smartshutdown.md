@@ -8,8 +8,9 @@ When you press the power button (short press), the GPIO will go from high to low
 Now, of course, you need to write a script to actually shutdown the RPi when getting the signal.
 
 This is a sample script for OpenELEC
+
 ```
->> nano /storage/.config/shutdown.sh
+>> nano /home/shutdown.sh
 ```
 
 ```bash

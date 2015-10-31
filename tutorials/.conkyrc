@@ -1,0 +1,57 @@
+# conky configuration
+#
+# The list of variables has been removed from this file in favour
+# of keeping the documentation more maintainable.
+# Check http://conky.sf.net for an up-to-date-list.
+#
+# For ideas about how to modify conky, please see:
+# http://crunchbanglinux.org/forums/topic/59/my-conky-config/
+#
+# For help with conky, please see:
+# http://crunchbanglinux.org/forums/topic/2047/conky-help/
+#
+# Enjoy! :)
+##############################################
+# Settings
+##############################################
+background yes
+use_xft yes
+#xftfont Liberation Sans:size=9
+xftfont silkscreen:size=8
+xftalpha 1
+update_interval 1.0
+total_run_times 0
+own_window yes
+own_window_transparent yes
+own_window_type desktop
+#own_window_argb_visual yes
+own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
+double_buffer no
+minimum_size 1600 3
+maximum_size 1600 5
+#border_width 0
+#border_height 0
+draw_shades no
+draw_outline no
+draw_borders no
+draw_graph_borders no
+#default_color 656667
+#default_color 000000
+default_color EEEEEE
+default_shade_color 000000
+default_outline_color 828282
+alignment bottom_right
+gap_x 0
+gap_y -1
+no_buffers yes
+uppercase no
+cpu_avg_samples 2
+override_utf8_locale yes
+user_spacer left
+##############################################
+#  Output
+##############################################
+TEXT
+#$alignr${cpu cpu0}% - $freq MHz $alignr  (${execpi 60 cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor})
+# CPU ${cpu}% | RAM ${memperc}% | DISK ${fs_used_perc}% | ${top name 1} $alignc RX ${downspeed eth1} | TX ${upspeed eth1}  $alignr $freq MHz | UPTIME $uptime
+ CPU  ${cpu}%  |  RAM  ${memperc}%  |  DISK  ${fs_used_perc}%  |  ${top name 1}  $alignr $freq MHz   |   UPTIME $uptime  

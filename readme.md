@@ -3,10 +3,10 @@
 ## Tutorials
 
 -  [**DS3132 Config**](http://www.raspberrypi-spy.co.uk/2015/05/adding-a-ds3231-real-time-clock-to-the-raspberry-pi/)
--  [**Replace LXDE for XFCE**](http://raspberrypi.stackexchange.com/questions/10053/changing-to-xfce-from-lxde)
--  [SmartShutdown Pin]()
--  [IR Sensor]()
--  [Conky script]()
+-  [**Replace LXDE for XFCE**](https://github.com/maesoser/rpi_goodies/blob/master/tutorials/xfce.md)
+-  [SmartShutdown Pin](https://github.com/maesoser/rpi_goodies/blob/master/tutorials/smartshutdown.md)
+-  [IR Sensor](https://github.com/maesoser/rpi_goodies/blob/master/tutorials/ir_sensor.md)
+-  [Conky](https://github.com/maesoser/rpi_goodies/blob/master/tutorials/conky.md)
 -  [External temp sensor]()
 ## Tools
 
