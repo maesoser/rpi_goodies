@@ -8,19 +8,21 @@
 #include <errno.h>
 #include <string.h>
 
+// Max and Min PWM values
 #define MIN_FAN_SPEED 350
 #define MAX_FAN_SPEED 1024
 
+
 #define FAN_PWM_PIN 7
 
+// Default values, if you dont define any other ones.
 #define DEFAULT_MIN_TEMP 50
 #define DEFAULT_MAX_TEMP 70
-#define DEFAULT_REFRESH_TIME 300
+#define DEFAULT_REFRESH_TIME 300	// 5 min
 
 int get_cpu_temp();
 int map(long x, long in_min, long in_max, long out_min, long out_max);
 void print_help();
-
 
 
 // you need to add -lwiringPi to the compile arguments
@@ -53,15 +55,17 @@ int main(int argc, char *argv[]){
 				break;
 			case 'd':
 				debug = 1;
+			case 's':
+				printf("TEMP: %d\n",get_cpu_temp());
+				return 0;
 		}
 	}
 
 	if(debug){
 		printf("DEBUG MODE:\n");
 		printf("\tMinimum temp: %d\n",minimum);
-		printf("\tMinimum temp: %d\n",maximum);
-		printf("\tRefresh time: %d\n",refresh_time);
-
+		printf("\tMaximum temp: %d\n",maximum);
+		printf("\tRefresh time: %d secs\n",refresh_time);
 	}
 
 	if (wiringPiSetup () == -1) return -1;
@@ -114,6 +118,8 @@ void print_help(){
 	printf("\t-M : maximum temp value\n");
 	printf("\t-r : refresh interval in seconds\n");
 	printf("\t-d : debug mode, just writes the values on screen\n");
+	printf("\t-s : show temperature and exits.\n");
+
 
 	printf("\nActual temp: %d\n", get_cpu_temp());
 }
