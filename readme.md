@@ -4,10 +4,9 @@
 
 -  [**DS3132 Config**](http://www.raspberrypi-spy.co.uk/2015/05/adding-a-ds3231-real-time-clock-to-the-raspberry-pi/)
 -  [**Replace LXDE for XFCE**](https://github.com/maesoser/rpi_goodies/blob/master/tutorials/xfce.md)
--  [SmartShutdown Pin](https://github.com/maesoser/rpi_goodies/blob/master/tutorials/smartshutdown.md)
 -  [IR Sensor](https://github.com/maesoser/rpi_goodies/blob/master/tutorials/ir_sensor.md)
 -  [Conky](https://github.com/maesoser/rpi_goodies/blob/master/tutorials/conky.md)
--  [External temp sensor]()
+
 ## Tools
 
 ### temp
@@ -24,18 +23,38 @@ gcc -Wall -o temp temp.c
 
 If you want one decimal (56,3 ºC) you should include the `-d` option.
 
-### fan_control
+### Fan control
 
-**fan_control** as it name says, control the rpi's fan speed. It's also written in C and make use of the temp.c code together with the [**WiringC**](http://wiringpi.com/) library.
+**fan** controls the rpi's fan speed. It's also written in C and make use of the temp.c code together with the [**WiringC**](http://wiringpi.com/) library.
 
 You can compile it by writting this:
 ```
-gcc -Wall -o fan fan.c -lwiringPi -lpthread
+gcc -O3 -Wall -o fan fan.c -lwiringPi
 ```
-And you should run it using `sudo` (cause of WiringC)
 
-It has some options to fix the maximum and minimum temperature and the refresh rate as well as a "debug" mode that shows the hypothetical status of the program (temperatue and pwm value) without really acting on the Raspberry GPIO pins. You can take a look at this arguments by writing `sudo ./fan -h`
+After that you could do `sudo chmod 775 fan` to execute fan easily like any other program.
 
-At the beginning we used pin 1 (BCM_GPIPO 18) to be PWM output, however if you are currently playing music or using the audio system via the 3.5mm jack socket, then you’ll find one channel of audio PWM coming through the pin.
+You should run it using `sudo` (cause of WiringC)
 
-So we changed to SoftwarePWM. It should work. The fan should be attached to **pin 7** but you could change this, its one of the first defines of the code.
+If you want to start the program when raspbian boot up, you should add a line like this, just before the `exit 0` line, in file `/etc/rc.local` :
+
+```
+/home/sierra/bin/fan &
+```
+
+You do not need to worry about sudo because rc.local runs with superuser attributes. Notice that `/home/sierra/bin/fan` is the particular location of the executable file on my raspberry.
+
+I also made the circuit depicted in this [video](https://www.youtube.com/watch?v=Ra1CY-zaDj4) cause the rPi did not gave me enough power. In my case, instead of connect the circuit to the 5v pin on the rPi I used the FAN connector of my PlusberryPi.
+
+### Shutdown button
+
+**shutbtn** monitorize the [PlusberryPi](https://www.indiegogo.com/projects/plusberry-pi-media-box-running-on-raspberry-pi) shutdown button every second and executes a halt when it detects it has been pushed. You could start the program when the system starts using the steps we utilized above for fan control. The button is connected by default at GPIO 29
+
+Compile it, move it to `/bin`, change it's permissions and finally, modify rc.local as we did above.
+```
+gcc -O3 -Wall -o shutbtn shutbtn.c -lwiringPi
+mv shutbtn /bin/shutbtn
+cd /bin
+sudo chmod 775 shutbtn
+nano /etc/rc.local
+```

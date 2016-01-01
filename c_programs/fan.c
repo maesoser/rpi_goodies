@@ -1,50 +1,62 @@
+/*
+Copyright 2016 Sergio Maeso Jiménez [massesos@gmail.com]
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+       http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+/*
+Program that controlls a fan attached to a raspbery pi.
+It turn on and off the fan depending on the temperature recived by the cpu sensor
+
+Compile with gcc -Wall -o fan fan.c -lwiringPi , run with sudo
+*/
+
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <wiringPi.h>
 #include <stdint.h>
-#include <softPwm.h>
-#include <errno.h>
-#include <string.h>
+#include <signal.h>
 
-// Max and Min PWM values
-#define MIN_FAN_SPEED 350
-#define MAX_FAN_SPEED 1024
+// DEFINES
+#define FAN_PIN 7
+#define DEFAULT_TEMP 49
+#define DEFAULT_REFRESH_TIME 10
+#define DEFAULT_FALLBACK_TEMP 5
 
-
-#define FAN_PWM_PIN 7
-
-// Default values, if you dont define any other ones.
-#define DEFAULT_MIN_TEMP 50
-#define DEFAULT_MAX_TEMP 70
-#define DEFAULT_REFRESH_TIME 300	// 5 min
-
+//FUNCTION DEFINITIONS
 int get_cpu_temp();
-int map(long x, long in_min, long in_max, long out_min, long out_max);
 void print_help();
+void ctrl_c ();
 
+//VARIABLES
+int threshold_temp = DEFAULT_TEMP;
+int target_temp = DEFAULT_TEMP - DEFAULT_FALLBACK_TEMP;
+int refresh_time = DEFAULT_REFRESH_TIME; //5 minutes
 
-// you need to add -lwiringPi to the compile arguments
+unsigned char debug = 0;
+int pin = FAN_PIN;
+int cpu_temp = 0;
+
 int main(int argc, char *argv[]){
 
 	int opt;
 
-	int minimum = DEFAULT_MIN_TEMP;
-	int maximum = DEFAULT_MAX_TEMP;
-	int refresh_time = DEFAULT_REFRESH_TIME; //5 minutes
-	unsigned char debug = 0;
-
-	int cpu_temp = 0;
-	int fan_speed = 0;
-
-	while ((opt = getopt(argc, argv, "m:M:r:dh")) != -1) {
+	while ((opt = getopt(argc, argv, "t:p:r:vh")) != -1) {
 		switch(opt) {
-			case 'm':
-				minimum = atoi(optarg);
+			case 't':
+				threshold_temp = atoi(optarg);
 				break;
-			case 'M':
-				maximum = atoi(optarg);
+			case 'p':
+				pin = atoi(optarg);
 				break;
 			case 'r':
 				refresh_time = atoi(optarg);
@@ -53,51 +65,43 @@ int main(int argc, char *argv[]){
 				print_help();
 				return 0;
 				break;
-			case 'd':
+			case 'v':
 				debug = 1;
-			case 's':
-				printf("TEMP: %d\n",get_cpu_temp());
-				return 0;
 		}
 	}
 
 	if(debug){
-		printf("DEBUG MODE:\n");
-		printf("\tMinimum temp: %d\n",minimum);
-		printf("\tMaximum temp: %d\n",maximum);
-		printf("\tRefresh time: %d secs\n",refresh_time);
+		printf("VERBOSE MODE:\n");
+		printf("\tThreshold temp: %d\n",threshold_temp);
+		printf("\tPin: %d\n",pin);
+		printf("\tRefresh time: %d\n",refresh_time);
+
 	}
+	signal (SIGINT, ctrl_c);
 
 	if (wiringPiSetup () == -1) return -1;
 
-	if(softPwmCreate (FAN_PWM_PIN, 0, 1024)!=0) {
-		printf("Error Initiating Software PWM on that pin\n %s\n", strerror(errno));
-		return -1;
-	}
-
-	//pinMode (FAN_PWM_PIN, PWM_OUTPUT) ;
-
+	pinMode (pin, OUTPUT) ;
+	target_temp = threshold_temp;
 	while(1){
 
 		cpu_temp = get_cpu_temp();
-		fan_speed = map(cpu_temp,minimum,maximum,MIN_FAN_SPEED,MAX_FAN_SPEED);
 
-		if(debug) printf("TEMP:%d\tFAN:%d/%d\n",cpu_temp,fan_speed,MAX_FAN_SPEED);
-		else {
-			softPwmWrite (FAN_PWM_PIN, fan_speed) ;
-			//pwmWrite(FAN_PWM_PIN, fan_speed);
+		if(cpu_temp >= target_temp){
+			if(debug)	printf("TEMP: %d\tFAN ACTIVE\n",cpu_temp);
+			digitalWrite(pin,HIGH);
+			target_temp = threshold_temp - DEFAULT_FALLBACK_TEMP;
+		}
+		else{
+			if(debug)	printf("TEMP: %d\tFAN STOPPED\n",cpu_temp);
+			digitalWrite(pin,LOW);
+			target_temp = threshold_temp;
+
 		}
 		sleep(refresh_time);
 
 	}
 	return 0;
-}
-
-int map(long x, long in_min, long in_max, long out_min, long out_max)
-{
-	if(x<in_min) return 0;
-	if(x>in_max) return MAX_FAN_SPEED;
-  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 int get_cpu_temp(){
@@ -113,13 +117,20 @@ int get_cpu_temp(){
 }
 
 void print_help(){
-	printf("Controls FAN PWM Output by monitoring CPU temperature sensor\n");
-	printf("\t-m : minimum temp value\n");
-	printf("\t-M : maximum temp value\n");
+	printf("Controls fan by monitoring CPU temperature sensor\n");
+	printf("\t-t : threshold temperature\n");
+	printf("\t-p : pin (wiringPi convention)\n");
 	printf("\t-r : refresh interval in seconds\n");
-	printf("\t-d : debug mode, just writes the values on screen\n");
-	printf("\t-s : show temperature and exits.\n");
+	printf("\tv  : verbose mode\n");
 
+	printf("\nActual temperature: %d\n", get_cpu_temp());
+}
 
-	printf("\nActual temp: %d\n", get_cpu_temp());
+/*
+*		gracefully handle a Control C
+*/
+void ctrl_c ( ){
+	printf("Ctrl C.\n");
+	digitalWrite(pin,LOW);
+	exit(0);
 }

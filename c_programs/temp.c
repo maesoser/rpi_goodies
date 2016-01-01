@@ -8,20 +8,10 @@ float get_cpu_temp();
 
 int main()
 {
-	unsigned int decimals = 0;
 	float cpu_temp = 0;
-	while ((opt = getopt(argc, argv, "d")) != -1) {
-		switch(opt) {
-			case 'd':
-				decimals = 1;
-				break;
-		}
-	}
-
 	cpu_temp = get_cpu_temp();
 
-	if(decimals)printf("<txt>%.1f ºC</txt>\n",cpu_temp);
-	else printf("<txt>%d ºC</txt>\n",(int) cpu_temp);
+	printf("<txt>%.1f ºC</txt>\n",cpu_temp);
 
 	return 0;
 }
