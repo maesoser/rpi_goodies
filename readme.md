@@ -1,11 +1,39 @@
 **This repo is a collection of tutorials and little codes that I use on my raspberry computer**
 
+# Config files
+
+-  [**Conky**](https://github.com/maesoser/rpi_goodies/blob/master/tutorials/conky.md)
+
 # Tutorials
 
--  [**DS3132 Config**](http://www.raspberrypi-spy.co.uk/2015/05/adding-a-ds3231-real-time-clock-to-the-raspberry-pi/)
--  [**Replace LXDE for XFCE**](https://github.com/maesoser/rpi_goodies/blob/master/tutorials/xfce.md)
--  [IR Sensor](https://github.com/maesoser/rpi_goodies/blob/master/tutorials/ir_sensor.md)
--  [Conky](https://github.com/maesoser/rpi_goodies/blob/master/tutorials/conky.md)
+## [Configure DS3132 RTC Module](http://www.raspberrypi-spy.co.uk/2015/05/adding-a-ds3231-real-time-clock-to-the-raspberry-pi/)
+
+## Replace LXDE with XFCE
+
+Install XFCE4:
+```
+$ sudo apt-get install xfce4 xfce4-goodies
+```
+Remove all the LXDE related packages:
+```
+$ sudo apt-get remove lxappearance lxde lxde-* lxinput lxmenu-data lxpanel lxpolkit lxrandr lxsession* lxsession lxshortcut lxtask lxterminal
+```
+Due to the fact that LXterminal will also remove the Pi Store, install the pistore package back (if you want to):
+```
+$ sudo apt-get install pistore
+```
+Because the default desktop environment has been removed, XFCE4 will be set by default, so you don’t have to do anything special.
+
+Run autoremove and autoclean to remove the packages that are not needed anymore:
+```
+$ sudo apt-get autoremove
+$ sudo apt-get autoclean
+```
+Now you are done. Reboot and choose XFCE4 from the display manager:
+```
+$ sudo reboot
+```
+I extract this steps from [this tutorial](http://linuxg.net/how-to-properly-remove-lxde-and-install-xfce-on-raspbian-debian-for-raspberry-pi/)
 
 ## Turn hdmi off
 
