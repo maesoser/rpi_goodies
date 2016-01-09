@@ -61,8 +61,11 @@ I've found an [useful tutorial](http://www.htpcguides.com/spin-down-and-manage-h
 /dev/disk/by-uuid/[MY HDD UUID] {
   write_cache = on
   spindown_time = 120
+  apm = 100
 }
 ```
+
+According to hdparm documentation, when the Advanced Power Management level is above 128, the spin down option is deactivated. That's the reason why I also included the `apm = 100` parameter.
 
 In order to obtain the uuid of your drive you should use the command `blkid /dev/sda1` for instance.
 
