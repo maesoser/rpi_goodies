@@ -1,0 +1,1 @@
+free | awk 'NR==3' | awk '/buffers/{printf(" %.2f% "), $3/($4+$3)*100}' | cut -c 2- 

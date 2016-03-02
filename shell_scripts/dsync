@@ -1,0 +1,11 @@
+dropbox start
+sleep 3
+output=$(dropbox status)
+while [ "$output" != "Actualizado" ]; do
+  echo "$output"
+  sleep 2 
+  output=$(dropbox status)
+done
+echo "$output"
+dropbox autostart n
+dropbox stop
