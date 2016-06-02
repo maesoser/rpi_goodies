@@ -1,0 +1,5 @@
+alias remove='sudo apt-get remove'
+alias update='sudo apt-get update'
+alias upgrade='sudo apt-get upgrade'
+alias dist-upgrade='sudo apt-get dist-upgrade'
+alias reinstall='sudo apt-get install --reinstall'
